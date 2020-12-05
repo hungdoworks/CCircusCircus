@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.44657868, g: 0.49641263, b: 0.57481706, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1074,6 +1074,8 @@ MonoBehaviour:
   jumpRange: 2
   runSpeed: 4
   animationHoldingRopeOffset: {x: 0, y: 0, z: 0}
+  touchTapSensitive: 0.15
+  touchSwipeSensitive: 60
 --- !u!54 &300023147
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2439,7 +2441,8 @@ PrefabInstance:
       propertyPath: m_Avatar
       value: 
       objectReference: {fileID: 9000000, guid: 45d480461bbdc704587e117329ce8e69, type: 3}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4889967528011538392, guid: 1e8e1924bb442334c9125455634bb567, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 1e8e1924bb442334c9125455634bb567, type: 3}
 --- !u!1 &1166365595
 GameObject:

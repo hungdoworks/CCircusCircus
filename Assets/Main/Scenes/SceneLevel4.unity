@@ -7196,6 +7196,11 @@ PrefabInstance:
       propertyPath: horse
       value: 
       objectReference: {fileID: 1426167016}
+    - target: {fileID: 3861982661776328398, guid: 5aebe3efafb868d4aa4ccd055328c18f,
+        type: 3}
+      propertyPath: touchSwipeSensitive
+      value: 60
+      objectReference: {fileID: 0}
     - target: {fileID: 3863127089917521741, guid: 5aebe3efafb868d4aa4ccd055328c18f,
         type: 3}
       propertyPath: m_Name

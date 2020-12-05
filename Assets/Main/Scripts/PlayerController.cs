@@ -169,74 +169,62 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    Vector2 touchStartPos;
+    float touchDownTime = 0;
+    public float touchTapSensitive = 0.15f;
+    public float touchSwipeSensitive = 100.0f;
 
-    Vector3 mouseStartPos;
-    Vector3 mouseHoldPos;
-    Vector3 mousePrevHoldPos;
-    float mouseStartDownTime = -1.0f;
-    float mouseStartMoveTime = -1.0f;
-    float mouseTapTime = 0.1f;
-    float mouseSwipeTime = 0.2f;
-    float swipeLength = 50.0f;
-
-    UserAction GetUserActionByMouse()
+    UserAction GetUserActionByTouch()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.touchCount > 0)
         {
-            mouseStartPos = Input.mousePosition;
-            mousePrevHoldPos = mouseStartPos;
-            mouseStartDownTime = Time.time;
-            mouseStartMoveTime = Time.time;
-        }
-        else if (Input.GetMouseButton(0))
-        {
-            mouseHoldPos = Input.mousePosition;
-            float mouseUpTime = Time.time;
+            Touch touch = Input.GetTouch(0);
 
-            if (mouseHoldPos.x == mousePrevHoldPos.x && mouseHoldPos.y == mousePrevHoldPos.y)
+            touchDownTime += (touchDownTime < 1.0f ? touch.deltaTime : 0);
+            // Debug.Log($"Time.deltaTime={Time.deltaTime}, touch.deltaTime={touch.deltaTime}");
+
+            if (touch.phase == TouchPhase.Began)
             {
-                mouseStartMoveTime = Time.time;
+                touchStartPos = touch.position;
+                touchDownTime = 0;
             }
-
-            if (mouseUpTime - mouseStartDownTime > mouseSwipeTime)
+            else if (touch.phase == TouchPhase.Moved)
             {
-                if (mouseStartPos.x / mainCamera.pixelWidth > 0.5f)
+
+            }
+            else if (touch.phase == TouchPhase.Ended)
+            {
+                if (touch.deltaPosition.magnitude * touch.deltaPosition.magnitude > touchSwipeSensitive)
                 {
-                    return UserAction.TouchRight;
+                    if (touch.deltaPosition.x < 0)
+                    {
+                        return UserAction.SwipeLeft;
+                    }
+                    else
+                    {
+                        return UserAction.SwipeRight;
+                    }
                 }
-                else if (mouseStartPos.x / mainCamera.pixelWidth <= 0.5f)
+                else if (touchDownTime < touchTapSensitive || horse != null)
                 {
-                    return UserAction.TouchLeft;
+                    return UserAction.Tap;
                 }
             }
-        }
-        else if (Input.GetMouseButtonUp(0))
-        {
-            Vector3 mousePos = Input.mousePosition;
-            float mouseUpTime = Time.time;
+            else if (touch.phase == TouchPhase.Stationary)
+            {
+                // Debug.Log("TouchPhase.Stationary touchDownTime: " + touchDownTime);
+                if (touchDownTime > touchTapSensitive)
+                {
+                    if (touch.position.x / mainCamera.pixelWidth > 0.5f)
+                    {
+                        return UserAction.TouchRight;
+                    }
+                    else if (touch.position.x / mainCamera.pixelWidth <= 0.5f)
+                    {
+                        return UserAction.TouchLeft;
+                    }
+                }
 
-            // Debug.Log("" + action.ToString());
-            // Debug.Log($"{mouseUpTime}, {mouseStartDownTime}, {mouseStartMoveTime}");
-            // Debug.Log($"{mouseUpTime - mouseStartMoveTime}");
-            // Debug.Log($"{mouseUpTime - mouseStartDownTime}");
-
-            if (mouseUpTime - mouseStartDownTime <= mouseTapTime &&
-                mouseStartPos.x == mousePos.x &&
-                mouseStartPos.y == mousePos.y)
-            {
-                return UserAction.Tap;
-            }
-            else if (mouseUpTime - mouseStartMoveTime <= mouseSwipeTime &&
-                Mathf.Abs(mouseStartPos.x - mousePos.x) >= swipeLength &&
-                mousePos.x - mouseStartPos.x > 0)
-            {
-                return UserAction.SwipeRight;
-            }
-            else if (mouseUpTime - mouseStartMoveTime <= mouseSwipeTime &&
-                Mathf.Abs(mouseStartPos.x - mousePos.x) >= swipeLength &&
-                mousePos.x - mouseStartPos.x < 0)
-            {
-                return UserAction.SwipeLeft;
             }
         }
 
@@ -256,7 +244,8 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            UserAction action = GetUserActionByMouse();
+            // UserAction action = GetUserActionByMouse();
+            UserAction action = GetUserActionByTouch();
 
             if (Input.GetKeyDown(KeyCode.Escape))
             {
@@ -284,7 +273,7 @@ public class PlayerController : MonoBehaviour
                 {
                     transform.position = ropeCs.GetLooseEndPosition() - animationHoldingRopeOffset;
 
-                    if (Input.GetKey(KeyCode.Space) || 
+                    if (Input.GetKey(KeyCode.Space) ||
                         action == UserAction.Tap ||
                         action == UserAction.SwipeLeft ||
                         action == UserAction.SwipeRight)
@@ -300,7 +289,7 @@ public class PlayerController : MonoBehaviour
                         if (action == UserAction.SwipeRight)
                             jumpingDirection = JumpingDirection.Forward;
                         else if (action == UserAction.SwipeLeft)
-                            jumpingDirection = JumpingDirection.Backward; 
+                            jumpingDirection = JumpingDirection.Backward;
 
                         rbPlayer.isKinematic = false;
                         rbPlayer.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
@@ -347,7 +336,7 @@ public class PlayerController : MonoBehaviour
                 // If walk/run normally
                 else
                 {
-                    if (Input.GetKeyDown(KeyCode.Space) || 
+                    if (Input.GetKeyDown(KeyCode.Space) ||
                         action == UserAction.Tap ||
                         action == UserAction.SwipeLeft ||
                         action == UserAction.SwipeRight)
@@ -467,7 +456,7 @@ public class PlayerController : MonoBehaviour
 
     void UpdateDirectionForBouncing()
     {
-        UserAction action = GetUserActionByMouse();
+        UserAction action = GetUserActionByTouch();
 
         if (Input.GetKey(KeyCode.RightArrow) || action == UserAction.TouchRight)
         {

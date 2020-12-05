@@ -1,3 +1,6 @@
 .vs/**
 .vscode/**
 obj/**
+Library/metadata/**
+Library/ShaderCache/**
+Library/PackageCache/**
